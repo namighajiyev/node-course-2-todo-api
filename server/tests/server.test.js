@@ -12,7 +12,6 @@ beforeEach((done) => {
 });
 
 describe("POST /todos", () => {
-    /*
     it("should create a new todo", (done) => {
         var text = "Test todo text";
         request(app)
@@ -35,7 +34,8 @@ describe("POST /todos", () => {
                 }).catch((err) => done(err));
             })
     });
-*/
+
+/*
     it("should not create todo with invalid body data", (done) => {
         request(app)
         .post("/todos")
@@ -52,4 +52,5 @@ describe("POST /todos", () => {
             }).catch((err) => done(err));
         });
     });
+*/ 
 });
