@@ -24,13 +24,10 @@ app.post("/todos", (req, res) => {
         text: req.body.text
     });
     todo.save().then((doc) => {
-            res.send(doc);
-        },
-        (err) => {
-            res.status(400).send(err);
-        }
-    );
-
+        res.send(doc);
+    }).catch((err) => {
+        res.status(400).send(err);
+    });
 });
 
 app.get("/todos", (req, res) => {
@@ -38,7 +35,7 @@ app.get("/todos", (req, res) => {
         res.send({
             todos
         });
-    }, (err) => {
+    }).catch((err) => {
         res.status(400).send(err);
     });
 });
@@ -59,12 +56,33 @@ app.get("/todos/:id", (req, res) => {
         res.send({
             todo
         });
-    }, (err) => {
+    }).catch((err) => {
+        res.status(400).send(err);
+    });
+});
+
+app.delete("/todos/:id", (req, res) => {
+    var id = req.params.id;
+    if (!ObjectID.isValid(id)) {
+        return res.status(404).send({
+            message: "Invalid id"
+        });
+    }
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) {
+            res.status(404).send({
+                message: "Todo not found"
+            });
+        }
+        res.send(todo);
+    }).catch((err) => {
         res.status(400).send(err);
     });
 
-
 });
+
+
+
 
 app.listen(port, () => {
     console.log(`Started on port ${port}`);
