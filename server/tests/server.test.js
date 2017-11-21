@@ -38,7 +38,7 @@ describe("POST /todos", () => {
             })
             .expect(200)
             .expect((res) => {
-                expect(res.body.text).toBe(text);
+                expect(res.body.todo.text).toBe(text);
             })
             .end((err, res) => {
                 if (err) {
@@ -104,11 +104,48 @@ describe("GET /todos/:id", () => {
         request(app)
             .get(`/todos/${todos[0]._id.toHexString()}`)
             .expect(200)
-            .expect((res)=> {
-                 expect(res.body.todo.text).toBe(todos[0].text);
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(todos[0].text);
             })
             .end(done)
     });
+});
+describe("DELETE /todos/:id", () => {
+    it("should delete a todo", (done) => {
+        var id = todos[0]._id.toHexString();
+        request(app).delete(`/todos/${id}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(todos[0].text);
+                expect(res.body.todo._id).toBe(id);
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Todo.findById(id).then((todo) => {
+                    expect(todo).toNotExist();
+                    done();
+                }).catch(err => done(err));
+            });
+    });
+
+    it("should return 404 status if id is invalid", (done) => {
+        request(app)
+            .delete("/todos/someinvalidid")
+            .expect(404)
+            .end(done);
+    });
+
+    it("should return 404 if to do with given valid id doesn't exists", (done) => {
+        request(app).delete("/todos/5a0fe65d7463a01204023d7f")
+            .expect(404)
+            .expect((err) => {
+                expect(err.body.message).toBe("Todo not found");
+            })
+            .end(done);
+    });
+
 });
 
 after(function () {

@@ -23,8 +23,10 @@ app.post("/todos", (req, res) => {
     var todo = new Todo({
         text: req.body.text
     });
-    todo.save().then((doc) => {
-        res.send(doc);
+    todo.save().then((todo) => {
+        res.send({
+            todo
+        });
     }).catch((err) => {
         res.status(400).send(err);
     });
@@ -70,11 +72,13 @@ app.delete("/todos/:id", (req, res) => {
     }
     Todo.findByIdAndRemove(id).then((todo) => {
         if (!todo) {
-            res.status(404).send({
+            return res.status(404).send({
                 message: "Todo not found"
             });
         }
-        res.send(todo);
+        res.send({
+            todo
+        });
     }).catch((err) => {
         res.status(400).send(err);
     });
