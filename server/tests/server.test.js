@@ -1,6 +1,9 @@
 const expect = require("expect");
 const request = require("supertest");
 const {
+    ObjectID
+} = require("mongodb");
+const {
     app
 } = require("./../server");
 const {
@@ -8,10 +11,16 @@ const {
 } = require("./../models/todo");
 
 const todos = [{
+    _id: new ObjectID(),
     text: "First todo text"
 }, {
+    _id: new ObjectID(),
     text: "Second todo text"
 }];
+const {
+    mongoose
+} = require("./../db/mongoose");
+
 
 beforeEach((done) => {
     Todo.remove({}).then(() => {
@@ -48,18 +57,18 @@ describe("POST /todos", () => {
 
     it("should not create todo with invalid body data", (done) => {
         request(app)
-        .post("/todos")
-        .send({})
-        .expect(400)
-        .end((err, res) => {
-            if (err) {
-                return done(err);
-            }
-            Todo.find().then((todos) => {
-                expect(todos.length).toBe(2);
-                done();
-            }).catch((err) => done(err));
-        });
+            .post("/todos")
+            .send({})
+            .expect(400)
+            .end((err, res) => {
+                if (err) {
+                    return done(err);
+                }
+                Todo.find().then((todos) => {
+                    expect(todos.length).toBe(2);
+                    done();
+                }).catch((err) => done(err));
+            });
     });
 
 });
@@ -74,4 +83,37 @@ describe("GET /todos", () => {
             })
             .end(done);
     });
+});
+
+describe("GET /todos/:id", () => {
+    it("should return 404 error if invalid id is passed", (done) => {
+        request(app).get("/todos/foo")
+            .expect(404)
+            .end(done)
+    });
+    it("should return 404 error if todo doesn't exists by given valid id", (done) => {
+        request(app)
+            .get("/todos/5a0fe65d7463a01204023d7f")
+            .expect(404)
+            .expect((err) => {
+                expect(err.body.message).toBe("Todo not found");
+            })
+            .end(done);
+    });
+    it("should get a todo", (done) => {
+        request(app)
+            .get(`/todos/${todos[0]._id.toHexString()}`)
+            .expect(200)
+            .expect((res)=> {
+                 expect(res.body.todo.text).toBe(todos[0].text);
+            })
+            .end(done)
+    });
+});
+
+after(function () {
+    mongoose.disconnect().then().catch(e => {
+        console.log("Error at teardown closing mongoose", err);
+    });
+
 });
