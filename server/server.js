@@ -1,3 +1,4 @@
+require('./config/config');
 const express = require("express");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
@@ -15,7 +16,7 @@ const {
     ObjectID
 } = require("mongodb");
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 const app = express();
 
 app.use(bodyParser.json());
@@ -29,7 +30,9 @@ app.post("/todos", (req, res) => {
             todo
         });
     }).catch((error) => {
-        res.status(400).send({error});
+        res.status(400).send({
+            error
+        });
     });
 });
 
@@ -39,7 +42,9 @@ app.get("/todos", (req, res) => {
             todos
         });
     }).catch((error) => {
-        res.status(400).send({error});
+        res.status(400).send({
+            error
+        });
     });
 });
 
@@ -60,7 +65,9 @@ app.get("/todos/:id", (req, res) => {
             todo
         });
     }).catch((error) => {
-        res.status(400).send({error});
+        res.status(400).send({
+            error
+        });
     });
 });
 
@@ -81,7 +88,9 @@ app.delete("/todos/:id", (req, res) => {
             todo
         });
     }).catch((error) => {
-        res.status(400).send({error});
+        res.status(400).send({
+            error
+        });
     });
 
 });
@@ -96,8 +105,7 @@ app.patch("/todos/:id", (req, res) => {
     }
     if (_.isBoolean(body.completed) && body.completed) {
         body.completedAt = new Date().getTime();
-    } else 
-    {
+    } else {
         body.completed = false;
         body.completedAt = null;
     }
@@ -105,7 +113,7 @@ app.patch("/todos/:id", (req, res) => {
         $set: body
     }, {
         new: true
-    }).then((todo)=>{
+    }).then((todo) => {
         if (!todo) {
             return res.status(404).send({
                 message: "Todo not found"
@@ -115,7 +123,9 @@ app.patch("/todos/:id", (req, res) => {
             todo
         });
     }).catch((error) => {
-        res.status(400).send({error});
+        res.status(400).send({
+            error
+        });
     });
 
 });
