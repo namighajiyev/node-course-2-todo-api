@@ -15,7 +15,9 @@ const todos = [{
     text: "First todo text"
 }, {
     _id: new ObjectID(),
-    text: "Second todo text"
+    text: "Second todo text",
+    completed: true,
+    completedAt: 333
 }];
 const {
     mongoose
@@ -146,6 +148,46 @@ describe("DELETE /todos/:id", () => {
             .end(done);
     });
 
+});
+
+describe("PATCH /todos/:id", () => {
+
+    it("should update completed to false", (done) => {
+        var id = todos[1]._id.toHexString();
+        var text = "dummy todo asdadas 6987546213489"
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({
+                text : text,
+                completed: false
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toBe(null);
+                expect(res.body.todo.text).toBe(text);
+            })
+            .end(done);
+    });
+
+    it("should update text and set completed to true", (done) => {
+        var id = todos[1]._id.toHexString();
+        var text = "dummy todo asdadas 6987546213489"
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({
+                text : text,
+                completed: true
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number')
+                expect(res.body.todo.completedAt).toNotBe(todos[1].completedAt);
+                expect(res.body.todo.text).toBe(text);
+            })
+            .end(done);
+    });
 });
 
 after(function () {
